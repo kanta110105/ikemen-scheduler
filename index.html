@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>関口式ワークスケジューラー ver.3.9</title>
+<title>関口式ワークスケジューラー ver.3.9.2</title>
 
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
@@ -81,11 +81,11 @@ button.primary{
   color: #fff !important;
 }
 
-/* FullCalendar内部の標準ナビゲーションボタン */
+/* === ナビゲーションボタンに細い枠線を追加 === */
 .fc .fc-button-primary.fc-prev-button,
 .fc .fc-button-primary.fc-next-button {
   background: #e6e8ec !important;
-  border: none !important;
+  border: 1px solid #ccc !important; /* 細い枠線 */
   color: #000 !important;
   padding: 8px 14px !important;
 }
@@ -96,14 +96,14 @@ button.primary{
 
 .fc .fc-today-button {
   background: #1a73e8 !important;
-  border: none !important;
+  border: 1px solid #155cb4 !important; /* 細い枠線 */
   color: #fff !important;
   opacity: 1 !important;
   box-shadow: none !important;
 }
 .fc .fc-today-button:disabled {
   background: #e6e8ec !important;
-  border: none !important;
+  border: 1px solid #ccc !important; /* 無効時も枠線を維持 */
   color: #000 !important;
   cursor: not-allowed;
   opacity: 1 !important;
@@ -117,7 +117,12 @@ button.primary{
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-/* 選択された日付の正確なハイライト表示スタイル */
+/* === アプリを開いた当日（今日）のセルを自動ハイライト化 === */
+.fc .fc-day-today {
+  background-color: #fff9e6 !important; /* 目立ちつつ邪魔にならない淡い黄色 */
+}
+
+/* 選択された日付の正確なハイライト表示スタイル（今日と重なった場合はこちらを優先） */
 .custom-selected-day {
   background-color: #cbe9fe !important; 
 }
@@ -132,6 +137,13 @@ button.primary{
 
 .fc-day-holiday{ background: #fff1f1 !important; }
 .fc-day-holiday .fc-daygrid-day-number { color: #d22 !important; }
+
+/* === Week/Dayビューの日付ヘッダー文字調整 === */
+.fc .fc-col-header-cell-cushion {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 2px !important;
+}
 
 /* イベントの基本外観 */
 .fc-event{
@@ -151,6 +163,9 @@ button.primary{
 .cat-other { background: #f1f3f4 !important; border-left: 4px solid #5f6368 !important; }
 
 /* 文字の端をキチッと美しく揃えるための専用固定幅スタイル */
+.fc-daygrid-event {
+  overflow: hidden;
+}
 .ev-time-fixed-month {
   display: inline-block;
   width: 36px;
@@ -193,7 +208,7 @@ button.primary{
 /* クイックフォーム */
 .quick-form{
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
   padding: 16px;
   background: #fff;
@@ -202,7 +217,6 @@ button.primary{
   border: 1px solid #e0e0e0;
 }
 
-/* 常設入力欄・モーダル共通の配置補助用スタイル */
 .datetime-container {
   display: flex;
   flex-direction: column;
@@ -224,7 +238,7 @@ button.primary{
 }
 
 .btn-next {
-  padding: 0 12px;
+  padding: 0 10px;
   font-size: 13px;
   background: #1a73e8;
   color: #fff !important;
@@ -241,7 +255,6 @@ button.primary{
   transform: scale(0.95);
 }
 
-/* 相手・メモ欄の横並びレイアウト（常設用） */
 .memo-flex-container {
   grid-column: 1 / -1;
   display: flex;
@@ -249,10 +262,10 @@ button.primary{
   width: 100%;
 }
 .memo-flex-left {
-  flex: 1; /* 相手欄 */
+  flex: 1;
 }
 .memo-flex-right {
-  flex: 2; /* メモ欄 */
+  flex: 2;
 }
 
 .quick-form textarea{
@@ -281,7 +294,7 @@ select {
   font-weight: bold;
 }
 
-/* Excelプレビューエリアのスタイル */
+/* Excelプレビューエリア */
 .preview-container {
   margin: 12px;
   padding: 16px;
@@ -367,7 +380,6 @@ select {
   margin-bottom: 12px;
 }
 
-/* モーダル内 相手・メモの横並び用スタイル */
 .modal-memo-split {
   display: flex;
   gap: 10px;
@@ -383,7 +395,21 @@ select {
   flex: 1;
 }
 
-/* 横画面やPC向けのレイアウト調整 */
+/* === 画面幅に応じたレスポンシブ・レイアウト調整 === */
+
+/* スマホ縦画面・超狭幅（479px以下）でのWeekビューの文字重なりを完全に防ぐ */
+@media(max-width: 479px) {
+  .fc .fc-col-header-cell-cushion {
+    font-size: 10px; /* 文字を極限まで小さく */
+    font-weight: 600; /* 少し細くしてシャープに */
+    padding: 4px 1px !important;
+  }
+}
+
+@media(min-width: 480px) {
+  .quick-form { grid-template-columns: 1fr 1fr; }
+}
+
 @media(min-width: 768px) {
   .header-container { flex-direction: row; justify-content: space-between; align-items: center; }
   .quick-form { grid-template-columns: repeat(4, 1fr); }
@@ -398,7 +424,7 @@ select {
 
 <header>
   <div class="header-container">
-    <div class="app-title">関口式ワークスケジューラー ver.3.9</div>
+    <div class="app-title">関口式ワークスケジューラー ver.3.9.2</div>
     <div class="toolbar">
       <button id="monthBtn" class="active">Month</button>
       <button id="weekBtn">Week</button>
@@ -410,19 +436,20 @@ select {
 
 <div id="calendar"></div>
 
+<!-- 常設入力欄 -->
 <div class="quick-form">
   <div class="datetime-container">
     <span class="field-label">開始日時</span>
     <div class="input-with-btn">
       <input type="datetime-local" id="quickStart">
-      <button type="button" id="quickStartNext" class="btn-next">次へ</button>
+      <button type="button" id="quickStartNext" class="btn-next">次</button>
     </div>
   </div>
   <div class="datetime-container">
     <span class="field-label">終了日時</span>
     <div class="input-with-btn">
       <input type="datetime-local" id="quickEnd">
-      <button type="button" id="quickEndNext" class="btn-next">次へ</button>
+      <button type="button" id="quickEndNext" class="btn-next">次</button>
     </div>
   </div>
   <div>
@@ -457,6 +484,7 @@ select {
   </div>
 </div>
 
+<!-- データプレビューエリア -->
 <div class="preview-container" id="previewArea" style="display: none;">
   <div class="preview-header">
     <div class="preview-title">📋 スケジュールデータ一覧（プレビュー）</div>
@@ -475,11 +503,13 @@ select {
         </tr>
       </thead>
       <tbody id="previewTableBody">
-        </tbody>
+        <!-- JavaScriptで動的に生成 -->
+      </tbody>
     </table>
   </div>
 </div>
 
+<!-- 編集・詳細モーダル -->
 <div id="modal">
   <div class="modal-box">
     <div class="form-group">
@@ -501,14 +531,14 @@ select {
       <label>開始日時</label>
       <div class="input-with-btn">
         <input type="datetime-local" id="startInput">
-        <button type="button" id="startNext" class="btn-next">次へ</button>
+        <button type="button" id="startNext" class="btn-next">次</button>
       </div>
     </div>
     <div class="form-group">
       <label>終了日時</label>
       <div class="input-with-btn">
         <input type="datetime-local" id="endInput">
-        <button type="button" id="endNext" class="btn-next">次へ</button>
+        <button type="button" id="endNext" class="btn-next">次</button>
       </div>
     </div>
     
@@ -541,7 +571,6 @@ const HOLIDAYS = {
   "2026-05-03":"憲法記念日","2026-05-04":"みどりの日","2026-05-05":"こどもの日"
 };
 
-// カテゴリ日本語変換用
 const CAT_NAMES = {
   work: "💼 仕事・訪問",
   meeting: "🤝 打合せ・連絡",
@@ -568,7 +597,7 @@ const modal = document.getElementById('modal');
 
 let currentEditId = null;
 let selectedDateStr = null; 
-let lastTapInfo = { dateStr: null, timestamp: 0 }; 
+let lastDateClick = { dateStr: null, timestamp: 0 }; // ダブルクリック管理用
 let lastViewType = null; 
 
 function generateUniqueId() {
@@ -664,7 +693,8 @@ const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), 
   initialView: window.innerWidth < 768 ? 'timeGridThreeDay' : 'dayGridMonth',
   selectable: false, 
   editable: true,
-  height: 'auto',
+  height: '72vh', /* === 高さを適度に固定して、WeekやDayで日付横列をSticky(固定)表示に === */
+  stickyHeaderDates: true,
   slotMinTime: '06:00:00',
   slotMaxTime: '30:00:00',
   scrollTime: '08:00:00',
@@ -687,6 +717,37 @@ const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), 
     }
   },
 
+  // === 共通：日付セル/時間セルのダブルタップ判定をFullCalendar標準機能に統合 ===
+  dateClick: function(info) {
+    const now = Date.now();
+    const clickStr = info.dateStr;
+
+    // 300ms以内の連続タップをダブルタップとみなしてモーダル起動（スクロール時の誤爆なし）
+    if (lastDateClick.dateStr === clickStr && (now - lastDateClick.timestamp) < 300) {
+      openModalForDate(info.date, info.allDay);
+      lastDateClick = { dateStr: null, timestamp: 0 };
+      return;
+    }
+
+    // シングルタップ：選択状態のハイライトとクイックフォーム連動
+    lastDateClick = { dateStr: clickStr, timestamp: now };
+    selectedDateStr = getLocalDateString(info.date);
+    refreshSelectionHighlight();
+
+    if (info.allDay) {
+      const targetTime = new Date(info.date);
+      const nowTime = new Date();
+      targetTime.setHours(nowTime.getHours(), nowTime.getMinutes());
+      quickStart.value = toLocal(targetTime);
+      quickEnd.value = toLocal(targetTime);
+    } else {
+      quickStart.value = toLocal(info.date);
+      let d = new Date(info.date);
+      d.setHours(d.getHours() + 1);
+      quickEnd.value = toLocal(d);
+    }
+  },
+
   dayCellDidMount(info){
     const d = getLocalDateString(info.date);
     
@@ -703,45 +764,6 @@ const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), 
     if (selectedDateStr && d === selectedDateStr) {
       info.el.classList.add('custom-selected-day');
     }
-
-    let longTapTimeout = null;
-    const handlePressStart = () => {
-      longTapTimeout = setTimeout(() => {
-        openModalForDate(info.date);
-      }, 500);
-    };
-    const handlePressEnd = () => {
-      if (longTapTimeout) clearTimeout(longTapTimeout);
-    };
-
-    info.el.addEventListener('mousedown', handlePressStart);
-    info.el.addEventListener('mouseup', handlePressEnd);
-    info.el.addEventListener('touchstart', handlePressStart, {passive: true});
-    info.el.addEventListener('touchend', handlePressEnd, {passive: true});
-
-    info.el.addEventListener('click', (e) => {
-      if (e.target.closest('.fc-event')) return; 
-
-      const now = Date.now();
-      const clickDStr = getLocalDateString(info.date);
-
-      if (lastTapInfo.dateStr === clickDStr && (now - lastTapInfo.timestamp) < 300) {
-        if (longTapTimeout) clearTimeout(longTapTimeout);
-        openModalForDate(info.date);
-        lastTapInfo = { dateStr: null, timestamp: 0 };
-        return;
-      }
-
-      lastTapInfo = { dateStr: clickDStr, timestamp: now };
-      selectedDateStr = clickDStr;
-      refreshSelectionHighlight();
-
-      const targetTime = new Date(info.date);
-      const nowTime = new Date();
-      targetTime.setHours(nowTime.getHours(), nowTime.getMinutes());
-      quickStart.value = toLocal(targetTime);
-      quickEnd.value = toLocal(targetTime);
-    });
   },
 
   eventClick(info){
@@ -816,7 +838,6 @@ const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), 
   datesSet() {
     refreshSelectionHighlight();
     adjustViewCenter();
-    // 画面切り替え時や予定更新時、プレビューが開いていれば内容を同期
     if (document.getElementById('previewArea').style.display === 'block') {
       updatePreviewTable();
     }
@@ -828,14 +849,20 @@ calendar.render();
 setupDateTimeSequence(quickStart, quickEnd, document.getElementById('quickStartNext'), document.getElementById('quickEndNext'));
 setupDateTimeSequence(startInput, endInput, document.getElementById('startNext'), document.getElementById('endNext'));
 
-function openModalForDate(date) {
+function openModalForDate(date, isAllDay = false) {
   currentEditId = null;
   const targetTime = new Date(date);
-  const nowTime = new Date();
-  targetTime.setHours(nowTime.getHours(), nowTime.getMinutes());
+  
+  if (isAllDay) {
+    const nowTime = new Date();
+    targetTime.setHours(nowTime.getHours(), nowTime.getMinutes());
+  }
 
   startInput.value = toLocal(targetTime);
-  endInput.value = toLocal(targetTime);
+  
+  let endD = new Date(targetTime);
+  endD.setHours(endD.getHours() + 1);
+  endInput.value = toLocal(endD);
 
   titleInput.value = '';
   partnerInput.value = '';
@@ -963,7 +990,6 @@ function updatePreviewTable() {
   const tbody = document.getElementById('previewTableBody');
   tbody.innerHTML = '';
 
-  // 開始日時の早い順にソートして並べる
   const sortedEvents = calendar.getEvents().sort((a, b) => {
     return (a.start?.getTime() || 0) - (b.start?.getTime() || 0);
   });
@@ -998,12 +1024,10 @@ function updatePreviewTable() {
 
 /* Excel出力 ＆ プレビュー展開 */
 document.getElementById('excelBtn').onclick=()=>{
-  // 1. プレビュー表示エリアを更新して出現させる
   updatePreviewTable();
   document.getElementById('previewArea').style.display = 'block';
   document.getElementById('previewArea').scrollIntoView({ behavior: 'smooth' });
 
-  // 2. Excelファイルの生成・ダウンロードもバックグラウンドで実行
   const header = [["開始日時", "終了日時", "カテゴリ", "相手", "タスク名", "詳細メモ"]];
   const rows = calendar.getEvents().map(e => [
     e.start ? toLocal(e.start).replace('T', ' ') : '',
