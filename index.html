@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>関口式ワークスケジューラー ver.3.9.2</title>
+<title>関口式ワークスケジューラー ver.3.9.5</title>
 
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
@@ -22,7 +22,6 @@ body{
   color: #000;
 }
 
-/* 全体の文字色を黒に統一して視認性を確保 */
 .fc, .fc * {
   color: #000 !important;
 }
@@ -81,11 +80,11 @@ button.primary{
   color: #fff !important;
 }
 
-/* === ナビゲーションボタンに細い枠線を追加 === */
+/* ナビゲーションボタンに細い枠線を追加 */
 .fc .fc-button-primary.fc-prev-button,
 .fc .fc-button-primary.fc-next-button {
   background: #e6e8ec !important;
-  border: 1px solid #ccc !important; /* 細い枠線 */
+  border: 1px solid #ccc !important;
   color: #000 !important;
   padding: 8px 14px !important;
 }
@@ -96,14 +95,14 @@ button.primary{
 
 .fc .fc-today-button {
   background: #1a73e8 !important;
-  border: 1px solid #155cb4 !important; /* 細い枠線 */
+  border: 1px solid #155cb4 !important;
   color: #fff !important;
   opacity: 1 !important;
   box-shadow: none !important;
 }
 .fc .fc-today-button:disabled {
   background: #e6e8ec !important;
-  border: 1px solid #ccc !important; /* 無効時も枠線を維持 */
+  border: 1px solid #ccc !important;
   color: #000 !important;
   cursor: not-allowed;
   opacity: 1 !important;
@@ -117,12 +116,11 @@ button.primary{
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-/* === アプリを開いた当日（今日）のセルを自動ハイライト化 === */
+/* アプリを開いた当日（今日）のセルを自動ハイライト化 */
 .fc .fc-day-today {
-  background-color: #fff9e6 !important; /* 目立ちつつ邪魔にならない淡い黄色 */
+  background-color: #fff9e6 !important;
 }
 
-/* 選択された日付の正確なハイライト表示スタイル（今日と重なった場合はこちらを優先） */
 .custom-selected-day {
   background-color: #cbe9fe !important; 
 }
@@ -138,14 +136,14 @@ button.primary{
 .fc-day-holiday{ background: #fff1f1 !important; }
 .fc-day-holiday .fc-daygrid-day-number { color: #d22 !important; }
 
-/* === Week/Dayビューの日付ヘッダー文字調整 === */
+/* Week/Dayビューの日付ヘッダー文字調整 */
 .fc .fc-col-header-cell-cushion {
   font-size: 13px;
   font-weight: 700;
   padding: 6px 2px !important;
 }
 
-/* イベントの基本外観 */
+/* イベントの外観 */
 .fc-event{
   border: none !important;
   border-radius: 6px !important;
@@ -154,7 +152,6 @@ button.primary{
   cursor: pointer;
 }
 
-/* 作業カテゴリ別色分け */
 .cat-work { background: #cfe3ff !important; border-left: 4px solid #1a73e8 !important; }
 .cat-meeting { background: #ffe3b3 !important; border-left: 4px solid #f29900 !important; }
 .cat-routine { background: #e2f0d9 !important; border-left: 4px solid #34a853 !important; }
@@ -162,7 +159,6 @@ button.primary{
 .cat-private { background: #f3e5f5 !important; border-left: 4px solid #ab47bc !important; }
 .cat-other { background: #f1f3f4 !important; border-left: 4px solid #5f6368 !important; }
 
-/* 文字の端をキチッと美しく揃えるための専用固定幅スタイル */
 .fc-daygrid-event {
   overflow: hidden;
 }
@@ -294,7 +290,7 @@ select {
   font-weight: bold;
 }
 
-/* Excelプレビューエリア */
+/* Excel印刷プレビューエリア（カレンダーグリッド型に最適化） */
 .preview-container {
   margin: 12px;
   padding: 16px;
@@ -322,34 +318,39 @@ select {
 
 .preview-table-wrapper {
   overflow-x: auto;
-  max-height: 300px;
 }
 
 .preview-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 11px;
   text-align: left;
+  table-layout: fixed; /* 幅を均等固定 */
 }
 
 .preview-table th {
-  background: #f1f3f4;
   font-weight: bold;
-  padding: 10px;
-  border-bottom: 2px solid #ddd;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  padding: 8px;
+  border: 1px solid #ddd;
 }
 
 .preview-table td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  white-space: nowrap;
+  padding: 8px;
+  border: 1px solid #ddd;
+  white-space: pre-wrap; /* セル内改行をしっかり描写 */
+  vertical-align: top;
+  height: 95px; /* カレンダーのマス感を持たせる */
+  line-height: 1.4;
 }
 
-.preview-table tr:hover {
-  background: #f8f9fa;
+.print-notice {
+  font-size: 11px;
+  color: #e65100;
+  background: #fff3e0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
 /* モーダル */
@@ -395,13 +396,10 @@ select {
   flex: 1;
 }
 
-/* === 画面幅に応じたレスポンシブ・レイアウト調整 === */
-
-/* スマホ縦画面・超狭幅（479px以下）でのWeekビューの文字重なりを完全に防ぐ */
 @media(max-width: 479px) {
   .fc .fc-col-header-cell-cushion {
-    font-size: 10px; /* 文字を極限まで小さく */
-    font-weight: 600; /* 少し細くしてシャープに */
+    font-size: 10px;
+    font-weight: 600;
     padding: 4px 1px !important;
   }
 }
@@ -424,7 +422,7 @@ select {
 
 <header>
   <div class="header-container">
-    <div class="app-title">関口式ワークスケジューラー ver.3.9.2</div>
+    <div class="app-title">関口式ワークスケジューラー ver.3.9.5</div>
     <div class="toolbar">
       <button id="monthBtn" class="active">Month</button>
       <button id="weekBtn">Week</button>
@@ -464,7 +462,7 @@ select {
     </select>
   </div>
   <div>
-    <span class="field-label">タスク名 / 件名</span>
+    <span class="field-label">場所 / 件名</span>
     <input type="text" id="quickTitle" placeholder="（未入力でも登録可）">
   </div>
   
@@ -484,26 +482,22 @@ select {
   </div>
 </div>
 
-<!-- データプレビューエリア -->
+<!-- 月間カレンダー型・印刷プレビューエリア -->
 <div class="preview-container" id="previewArea" style="display: none;">
   <div class="preview-header">
-    <div class="preview-title">📋 スケジュールデータ一覧（プレビュー）</div>
+    <div class="preview-title">📋 月間印刷プレビュー（A4横レイアウト想定）</div>
     <button id="closePreviewBtn" style="padding: 6px 12px; font-size: 12px; background: #f1f3f4;">閉じる</button>
+  </div>
+  <div class="print-notice">
+    💡 Excelファイルを開いた後、全体を選択して「選択範囲を折り返して全体を表示」を有効にし、印刷設定で「すべての列を1ページに印刷（方向: 横）」に設定すると、綺麗にA4サイズ1枚に収まります。
   </div>
   <div class="preview-table-wrapper">
     <table class="preview-table">
       <thead>
-        <tr>
-          <th>開始日時</th>
-          <th>終了日時</th>
-          <th>カテゴリ</th>
-          <th>相手</th>
-          <th>件名 / タスク名</th>
-          <th>詳細メモ</th>
-        </tr>
+        <!-- JSで動的生成 -->
       </thead>
       <tbody id="previewTableBody">
-        <!-- JavaScriptで動的に生成 -->
+        <!-- JSで動的生成 -->
       </tbody>
     </table>
   </div>
@@ -524,7 +518,7 @@ select {
       </select>
     </div>
     <div class="form-group">
-      <label>タスク名 / 件名</label>
+      <label>場所 / 件名</label>
       <input type="text" id="titleInput" placeholder="（未入力でも登録可）">
     </div>
     <div class="form-group">
@@ -564,20 +558,10 @@ select {
 <script>
 const STORAGE_KEY = 'ikemen_scheduler_v34'; 
 
-// 2026年 祝日データ
 const HOLIDAYS = {
   "2026-01-01":"元日","2026-01-12":"成人の日","2026-02-11":"建国記念の日",
   "2026-02-23":"天皇誕生日","2026-03-20":"春分の日","2026-04-29":"昭和の日",
   "2026-05-03":"憲法記念日","2026-05-04":"みどりの日","2026-05-05":"こどもの日"
-};
-
-const CAT_NAMES = {
-  work: "💼 仕事・訪問",
-  meeting: "🤝 打合せ・連絡",
-  routine: "🖥️ 内務・作業",
-  rest: "☕ 休み・中抜け",
-  private: "🏠 プライベート",
-  other: "⚙️ その他"
 };
 
 const quickStart = document.getElementById('quickStart');
@@ -597,7 +581,7 @@ const modal = document.getElementById('modal');
 
 let currentEditId = null;
 let selectedDateStr = null; 
-let lastDateClick = { dateStr: null, timestamp: 0 }; // ダブルクリック管理用
+let lastDateClick = { dateStr: null, timestamp: 0 }; 
 let lastViewType = null; 
 
 function generateUniqueId() {
@@ -670,18 +654,12 @@ function setupDateTimeSequence(startIn, endIn, nextBtnStart, nextBtnEnd) {
     }
   });
 
-  const proceedToEnd = () => {
-    if (startIn.value) {
-      endIn.focus();
-    }
-  };
+  const proceedToEnd = () => { if (startIn.value) endIn.focus(); };
   nextBtnStart.addEventListener('click', (e) => { e.preventDefault(); proceedToEnd(); });
   startIn.addEventListener('change', proceedToEnd);
   startIn.addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); proceedToEnd(); } });
 
-  const closePicker = () => {
-    endIn.blur();
-  };
+  const closePicker = () => { endIn.blur(); };
   nextBtnEnd.addEventListener('click', (e) => { e.preventDefault(); closePicker(); });
   endIn.addEventListener('change', closePicker);
   endIn.addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); closePicker(); } });
@@ -693,7 +671,7 @@ const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), 
   initialView: window.innerWidth < 768 ? 'timeGridThreeDay' : 'dayGridMonth',
   selectable: false, 
   editable: true,
-  height: '72vh', /* === 高さを適度に固定して、WeekやDayで日付横列をSticky(固定)表示に === */
+  height: '72vh', 
   stickyHeaderDates: true,
   slotMinTime: '06:00:00',
   slotMaxTime: '30:00:00',
@@ -703,33 +681,21 @@ const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), 
   headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
 
   views: {
-    timeGridWeek: {
-      type: 'timeGrid',
-      duration: { days: 7 },
-      dateIncrement: { days: 1 },
-      buttonText: '週'
-    },
-    timeGridThreeDay: {
-      type: 'timeGrid',
-      duration: { days: 3 },
-      dateIncrement: { days: 1 },
-      buttonText: '3日'
-    }
+    timeGridWeek: { type: 'timeGrid', duration: { days: 7 }, dateIncrement: { days: 1 } },
+    timeGridThreeDay: { type: 'timeGrid', duration: { days: 3 }, dateIncrement: { days: 1 } }
   },
 
-  // === 共通：日付セル/時間セルのダブルタップ判定をFullCalendar標準機能に統合 ===
+  // 共通のダブルタップによるモーダル起動
   dateClick: function(info) {
     const now = Date.now();
     const clickStr = info.dateStr;
 
-    // 300ms以内の連続タップをダブルタップとみなしてモーダル起動（スクロール時の誤爆なし）
     if (lastDateClick.dateStr === clickStr && (now - lastDateClick.timestamp) < 300) {
       openModalForDate(info.date, info.allDay);
       lastDateClick = { dateStr: null, timestamp: 0 };
       return;
     }
 
-    // シングルタップ：選択状態のハイライトとクイックフォーム連動
     lastDateClick = { dateStr: clickStr, timestamp: now };
     selectedDateStr = getLocalDateString(info.date);
     refreshSelectionHighlight();
@@ -750,7 +716,6 @@ const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), 
 
   dayCellDidMount(info){
     const d = getLocalDateString(info.date);
-    
     if(HOLIDAYS[d]){
       info.el.classList.add('fc-day-holiday');
       const label = document.createElement('div');
@@ -760,7 +725,6 @@ const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), 
       label.style.fontWeight = '700';
       info.el.querySelector('.fc-daygrid-day-top')?.appendChild(label);
     }
-
     if (selectedDateStr && d === selectedDateStr) {
       info.el.classList.add('custom-selected-day');
     }
@@ -784,8 +748,7 @@ const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), 
   },
 
   eventClassNames(arg) {
-    const cat = arg.event.extendedProps.category || 'work';
-    return [`cat-${cat}`];
+    return [`cat-${arg.event.extendedProps.category || 'work'}`];
   },
 
   eventContent(arg){
@@ -793,46 +756,26 @@ const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), 
     const start = ev.start ? ev.start.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '';
     const end = ev.end ? ev.end.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '';
     const cat = ev.extendedProps.category || 'work';
-
     const partnerStr = ev.extendedProps.partner ? ev.extendedProps.partner.trim() : '';
     let titleStr = (ev.title === '（件名なし）' || !ev.title) ? '予定' : ev.title.trim();
 
-    if (cat === 'rest' && titleStr === '予定') {
-      titleStr = '休み・中抜け';
-    }
+    if (cat === 'rest' && titleStr === '予定') titleStr = '休み・中抜け';
 
-    let displayHtml = '';
-    if (partnerStr) {
-      displayHtml += `<span class="ev-icon">👤</span>${partnerStr} <span class="ev-icon">📋</span>${titleStr}`;
-    } else {
-      if (cat === 'rest') {
-        displayHtml += `<span class="ev-icon">☕</span>${titleStr}`;
-      } else {
-        displayHtml += `<span class="ev-icon">📋</span>${titleStr}`;
-      }
-    }
+    let displayHtml = partnerStr ? `<span class="ev-icon">👤</span>${partnerStr} <span class="ev-icon">📋</span>${titleStr}` : `<span class="ev-icon">📋</span>${titleStr}`;
 
     if(arg.view.type === 'dayGridMonth'){
-      return {
-        html: `<div class="ev-line" style="font-size:11px;"><span class="ev-time-fixed-month">${start}</span>${displayHtml}</div>`
-      };
+      return { html: `<div class="ev-line" style="font-size:11px;"><span class="ev-time-fixed-month">${start}</span>${displayHtml}</div>` };
     }
-
     if(arg.view.type === 'timeGridThreeDay'){
-      return {
-        html: `
-          <div class="ev-line" style="font-size:11px; font-weight:800;"><span class="ev-time-fixed-3day">${start}-${end}</span>${displayHtml}</div>
-          <div class="ev-line" style="font-size:11px; font-weight:normal; opacity:0.8; margin-top:2px;">${ev.extendedProps.content || ''}</div>
-        `
-      };
+      return { html: `
+        <div class="ev-line" style="font-size:11px; font-weight:800;"><span class="ev-time-fixed-3day">${start}-${end}</span>${displayHtml}</div>
+        <div class="ev-line" style="font-size:11px; font-weight:normal; opacity:0.8; margin-top:2px;">${ev.extendedProps.content || ''}</div>
+      `};
     }
-
-    return {
-      html: `
-        <div class="ev-time" style="font-size:11px; font-weight:800;">${start} - ${end}</div>
-        <div class="ev-line" style="font-weight:800; margin-top:2px;">${displayHtml}</div>
-      `
-    };
+    return { html: `
+      <div class="ev-time" style="font-size:11px; font-weight:800;">${start} - ${end}</div>
+      <div class="ev-line" style="font-weight:800; margin-top:2px;">${displayHtml}</div>
+    `};
   },
 
   datesSet() {
@@ -852,33 +795,21 @@ setupDateTimeSequence(startInput, endInput, document.getElementById('startNext')
 function openModalForDate(date, isAllDay = false) {
   currentEditId = null;
   const targetTime = new Date(date);
-  
   if (isAllDay) {
     const nowTime = new Date();
     targetTime.setHours(nowTime.getHours(), nowTime.getMinutes());
   }
-
   startInput.value = toLocal(targetTime);
-  
   let endD = new Date(targetTime);
   endD.setHours(endD.getHours() + 1);
   endInput.value = toLocal(endD);
-
-  titleInput.value = '';
-  partnerInput.value = '';
-  contentInput.value = '';
-  categoryInput.value = 'work';
-
+  titleInput.value = ''; partnerInput.value = ''; contentInput.value = ''; categoryInput.value = 'work';
   modal.classList.add('active');
 }
 
 function syncLocalStorage(){
   const data = calendar.getEvents().map(e=>({
-    id: e.id,
-    title: e.title,
-    start: e.start,
-    end: e.end,
-    extendedProps: e.extendedProps
+    id: e.id, title: e.title, start: e.start, end: e.end, extendedProps: e.extendedProps
   }));
   saveEvents(data);
   if (document.getElementById('previewArea').style.display === 'block') {
@@ -886,96 +817,52 @@ function syncLocalStorage(){
   }
 }
 
-/* クイックフォームから追加 */
+/* クイック追加 */
 document.getElementById('quickSaveBtn').onclick = ()=>{
   const start = quickStart.value;
   let end = quickEnd.value || start;
-
   if(!start) { alert('開始日時を選択してください'); return; }
-  if(start === end) {
-    let d = new Date(start); d.setHours(d.getHours() + 1); end = toLocal(d);
-  }
-
-  const finalTitle = quickTitle.value.trim() || '（件名なし）';
+  if(start === end) { let d = new Date(start); d.setHours(d.getHours() + 1); end = toLocal(d); }
 
   calendar.addEvent({
     id: generateUniqueId(),
-    title: finalTitle,
-    start: start,
-    end: end,
-    extendedProps: {
-      category: quickCategory.value,
-      partner: quickPartner.value.trim(),
-      content: quickContent.value
-    }
+    title: quickTitle.value.trim() || '（件名なし）',
+    start: start, end: end,
+    extendedProps: { category: quickCategory.value, partner: quickPartner.value.trim(), content: quickContent.value }
   });
-
   syncLocalStorage();
-  
-  quickTitle.value = '';
-  quickPartner.value = '';
-  quickContent.value = '';
-  quickStart.value = nowLocalDatetime();
-  quickEnd.value = '';
+  quickTitle.value = ''; quickPartner.value = ''; quickContent.value = ''; quickStart.value = nowLocalDatetime(); quickEnd.value = '';
 };
 
-/* モーダル内保存ボタン */
+/* 保存 */
 document.getElementById('saveBtn').onclick = ()=>{
-  let start = startInput.value;
-  let end = endInput.value || start;
-
+  let start = startInput.value; let end = endInput.value || start;
   if(!start) { alert('開始日時を選択してください'); return; }
-  
   const finalTitle = titleInput.value.trim() || '（件名なし）';
 
   if(currentEditId){
     const oldEv = calendar.getEventById(currentEditId);
     if(oldEv) oldEv.remove();
-    
-    calendar.addEvent({
-      id: currentEditId,
-      title: finalTitle,
-      start: start,
-      end: end,
-      extendedProps: {
-        content: contentInput.value,
-        partner: partnerInput.value.trim(),
-        category: categoryInput.value
-      }
-    });
-  } else {
-    calendar.addEvent({
-      id: generateUniqueId(),
-      title: finalTitle,
-      start: start,
-      end: end,
-      extendedProps: {
-        content: contentInput.value,
-        partner: partnerInput.value.trim(),
-        category: categoryInput.value
-      }
-    });
   }
-
+  calendar.addEvent({
+    id: currentEditId || generateUniqueId(),
+    title: finalTitle, start: start, end: end,
+    extendedProps: { content: contentInput.value, partner: partnerInput.value.trim(), category: categoryInput.value }
+  });
   syncLocalStorage();
   modal.classList.remove('active');
 };
 
 /* 削除 */
 document.getElementById('deleteBtn').onclick = ()=>{
-  if(currentEditId){
-    if(confirm('削除しますか？')) {
-      const ev = calendar.getEventById(currentEditId);
-      if(ev) ev.remove();
-      syncLocalStorage();
-      modal.classList.remove('active');
-    }
-  } else {
-    modal.classList.remove('active');
+  if(currentEditId && confirm('削除しますか？')){
+    const ev = calendar.getEventById(currentEditId);
+    if(ev) ev.remove();
+    syncLocalStorage();
   }
+  modal.classList.remove('active');
 };
 
-/* ビュー切り替えトリガー */
 document.getElementById('monthBtn').onclick=()=>{ lastViewType = null; setActiveBtn('monthBtn'); calendar.changeView('dayGridMonth'); };
 document.getElementById('weekBtn').onclick=()=>{ lastViewType = null; setActiveBtn('weekBtn'); calendar.changeView('timeGridWeek'); };
 document.getElementById('dayBtn').onclick=()=>{ lastViewType = null; setActiveBtn('dayBtn'); calendar.changeView('timeGridThreeDay'); };
@@ -985,66 +872,173 @@ function setActiveBtn(id) {
   document.getElementById(id).classList.add('active');
 }
 
-/* プレビューテーブルの更新処理 */
+// === 【重要】A4横・1マス2行構成/複数絞り込みセルのテキスト生成コアロジック ===
+function generateCellTextForMonthGrid(year, month, day) {
+  const pad = v => String(v).padStart(2,'0');
+  const targetStr = `${year}-${pad(month+1)}-${pad(day)}`;
+  
+  // 指定日のスケジュールを抽出・開始時間順にソート
+  const dayEvents = calendar.getEvents().filter(e => {
+    const dObj = e.start;
+    return `${dObj.getFullYear()}-${pad(dObj.getMonth()+1)}-${pad(dObj.getDate())}` === targetStr;
+  }).sort((a, b) => (a.start?.getTime() || 0) - (b.start?.getTime() || 0));
+
+  let cellText = `${day}日`;
+  if (dayEvents.length === 0) return cellText;
+
+  // 1)) スケジュールが1件のみの場合（2行構成）
+  if (dayEvents.length === 1) {
+    const ev = dayEvents[0];
+    const start = ev.start ? ev.start.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '';
+    const end = ev.end ? ev.end.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '';
+    const place = (ev.title === '（件名なし）' || !ev.title) ? '予定' : ev.title.trim();
+    const partner = ev.extendedProps.partner ? ev.extendedProps.partner.trim() : '';
+    const memo = ev.extendedProps.content ? ev.extendedProps.content.trim() : '';
+
+    // 上の段：開始時間と終了時間（hh:mm-hh:mm）、場所
+    cellText += `\n${start}-${end} ${place}`;
+    // 下の段：相手、メモ
+    let secondLine = [];
+    if (partner) secondLine.push(partner);
+    if (memo) secondLine.push(memo);
+    if (secondLine.length > 0) {
+      cellText += `\n${secondLine.join(' / ')}`;
+    } else {
+      cellText += `\n—`; // 2行構成の見た目を維持
+    }
+  } 
+  // 2)) 同日に複数のスケジュールがある場合（1行に絞り込み）
+  else {
+    // A4の1マスに収めるため最大3行分を上限管理（4件以上なら2件＋"他 イベント有"）
+    const showLimit = dayEvents.length <= 3 ? dayEvents.length : 2;
+    
+    for (let i = 0; i < showLimit; i++) {
+      const ev = dayEvents[i];
+      const start = ev.start ? ev.start.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '';
+      const place = (ev.title === '（件名なし）' || !ev.title) ? '予定' : ev.title.trim();
+      const partner = ev.extendedProps.partner ? `(${ev.extendedProps.partner.trim()})` : '';
+      
+      // 開始時間、場所、相手の3つに絞って1行化
+      cellText += `\n${start} ${place} ${partner}`.trim();
+    }
+    
+    if (dayEvents.length > 3) {
+      cellText += `\n他 イベント有`;
+    }
+  }
+  return cellText;
+}
+
+/* 印刷プレビュー画面の描画（月間カレンダーグリッド型） */
 function updatePreviewTable() {
+  const currentData = calendar.getDate();
+  const year = currentData.getFullYear();
+  const month = currentData.getMonth();
+
+  document.querySelector('.preview-title').innerHTML = `📋 ${year}年${month+1}月 月間印刷プレビュー（A4横想定）`;
+
+  const thead = document.querySelector('.preview-table thead');
+  thead.innerHTML = `
+    <tr>
+      <th style="width:14.2%; background:#fff1f1; color:#d22; text-align:center;">日</th>
+      <th style="width:14.2%; text-align:center;">月</th>
+      <th style="width:14.2%; text-align:center;">火</th>
+      <th style="width:14.2%; text-align:center;">水</th>
+      <th style="width:14.2%; text-align:center;">木</th>
+      <th style="width:14.2%; text-align:center;">金</th>
+      <th style="width:14.2%; background:#eef6ff; color:#1a73e8; text-align:center;">土</th>
+    </tr>
+  `;
+
   const tbody = document.getElementById('previewTableBody');
   tbody.innerHTML = '';
 
-  const sortedEvents = calendar.getEvents().sort((a, b) => {
-    return (a.start?.getTime() || 0) - (b.start?.getTime() || 0);
-  });
+  const firstDayCell = new Date(year, month, 1);
+  const firstDayOfWeek = firstDayCell.getDay();
+  const lastDayCell = new Date(year, month + 1, 0);
+  const totalDays = lastDayCell.getDate();
 
-  if (sortedEvents.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888; padding:20px;">登録されている予定がありません。</td></tr>`;
-    return;
-  }
-
-  sortedEvents.forEach(e => {
+  let currentDay = 1;
+  for (let w = 0; w < 6; w++) {
     const tr = document.createElement('tr');
-    
-    const startStr = e.start ? toLocal(e.start).replace('T', ' ') : '';
-    const endStr = e.end ? toLocal(e.end).replace('T', ' ') : '';
-    const catCode = e.extendedProps.category || 'work';
-    const catStr = CAT_NAMES[catCode] || catCode;
-    const partnerStr = e.extendedProps.partner || '—';
-    const titleStr = e.title || '—';
-    const contentStr = e.extendedProps.content || '—';
-
-    tr.innerHTML = `
-      <td style="font-weight:bold;">${startStr}</td>
-      <td>${endStr}</td>
-      <td>${catStr}</td>
-      <td>👤 ${partnerStr}</td>
-      <td style="font-weight:600;">📋 ${titleStr}</td>
-      <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis;" title="${contentStr}">${contentStr}</td>
-    `;
+    for (let d = 0; d < 7; d++) {
+      const td = document.createElement('td');
+      
+      if ((w === 0 && d < firstDayOfWeek) || currentDay > totalDays) {
+        td.style.background = '#f9f9f9';
+        td.innerHTML = '';
+      } else {
+        const text = generateCellTextForMonthGrid(year, month, currentDay);
+        td.textContent = text;
+        
+        if (d === 0) td.style.background = '#fff8f8';
+        if (d === 6) td.style.background = '#f5f9ff';
+        
+        // 今日（2026/05/24）の簡易ハイライト
+        const pad = v => String(v).padStart(2,'0');
+        if (`${year}-${pad(month+1)}-${pad(currentDay)}` === '2026-05-24') {
+          td.style.background = '#fff9e6';
+          td.style.border = '2px solid #f29900';
+        }
+        currentDay++;
+      }
+      tr.appendChild(td);
+    }
     tbody.appendChild(tr);
-  });
+    if (currentDay > totalDays) break;
+  }
 }
 
-/* Excel出力 ＆ プレビュー展開 */
+/* Excel出力処理（A4横サイズに完全に最適化したデータ構造） */
 document.getElementById('excelBtn').onclick=()=>{
   updatePreviewTable();
   document.getElementById('previewArea').style.display = 'block';
   document.getElementById('previewArea').scrollIntoView({ behavior: 'smooth' });
 
-  const header = [["開始日時", "終了日時", "カテゴリ", "相手", "タスク名", "詳細メモ"]];
-  const rows = calendar.getEvents().map(e => [
-    e.start ? toLocal(e.start).replace('T', ' ') : '',
-    e.end ? toLocal(e.end).replace('T', ' ') : '',
-    CAT_NAMES[e.extendedProps.category || 'work'] || '',
-    e.extendedProps.partner || '',
-    e.title,
-    e.extendedProps.content || ''
-  ]);
+  const currentData = calendar.getDate();
+  const year = currentData.getFullYear();
+  const month = currentData.getMonth();
+
+  let excelRows = [];
+  // 1行目: タイトル
+  excelRows.push([`${year}年 ${month + 1}月 ワークスケジュール`]);
+  excelRows.push([]); // 2行目: 空白
+  // 3行目: 曜日ヘッダー
+  excelRows.push(["日", "月", "火", "水", "木", "金", "土"]);
+
+  const firstDayCell = new Date(year, month, 1);
+  const firstDayOfWeek = firstDayCell.getDay();
+  const lastDayCell = new Date(year, month + 1, 0);
+  const totalDays = lastDayCell.getDate();
+
+  let currentDay = 1;
+  for (let w = 0; w < 6; w++) {
+    let weekRow = [];
+    for (let d = 0; d < 7; d++) {
+      if ((w === 0 && d < firstDayOfWeek) || currentDay > totalDays) {
+        weekRow.push("");
+      } else {
+        const text = generateCellTextForMonthGrid(year, month, currentDay);
+        weekRow.push(text);
+        currentDay++;
+      }
+    }
+    excelRows.push(weekRow);
+    if (currentDay > totalDays) break;
+  }
   
-  const ws = XLSX.utils.aoa_to_sheet(header.concat(rows));
+  const ws = XLSX.utils.aoa_to_sheet(excelRows);
+  
+  // A4横幅に均等に広げるための列幅調整設定（7列分）
+  ws['!cols'] = [
+    { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 22 }
+  ];
+
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'WorkSchedule');
-  XLSX.writeFile(wb, 'work_schedule.xlsx');
+  XLSX.utils.book_append_sheet(wb, ws, '月間スケジュール');
+  XLSX.writeFile(wb, `work_schedule_${year}_${month+1}.xlsx`);
 };
 
-/* プレビューを閉じるボタン */
 document.getElementById('closePreviewBtn').onclick = () => {
   document.getElementById('previewArea').style.display = 'none';
 };
