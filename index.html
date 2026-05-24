@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>関口式ワークスケジューラー ver.3.9</title>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+*{
+  box-sizing: border-box;
+}
+
+body{
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: #f4f6f9;
+  color: #000;
+}
+
+/* 全体の文字色を黒に統一して視認性を確保 */
+.fc, .fc * {
+  color: #000 !important;
+}
+
+header{
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 12px 16px;
+}
+
+.header-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.app-title{
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+}
+
+.toolbar{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button{
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  background: #e6e8ec;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+button.active{
+  background: #1a73e8;
+  color: #fff !important;
+}
+
+button.primary{
+  background: #0f9d58;
+  color: #fff !important;
+}
+
+/* FullCalendar内部の標準ナビゲーションボタン */
+.fc .fc-button-primary.fc-prev-button,
+.fc .fc-button-primary.fc-next-button {
+  background: #e6e8ec !important;
+  border: none !important;
+  color: #000 !important;
+  padding: 8px 14px !important;
+}
+.fc .fc-button-primary.fc-prev-button:hover,
+.fc .fc-button-primary.fc-next-button:hover {
+  background: #dcdfe4 !important;
+}
+
+.fc .fc-today-button {
+  background: #1a73e8 !important;
+  border: none !important;
+  color: #fff !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+.fc .fc-today-button:disabled {
+  background: #e6e8ec !important;
+  border: none !important;
+  color: #000 !important;
+  cursor: not-allowed;
+  opacity: 1 !important;
+}
+
+#calendar{
+  padding: 10px;
+  background: #fff;
+  border-radius: 14px;
+  margin: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* 選択された日付の正確なハイライト表示スタイル */
+.custom-selected-day {
+  background-color: #cbe9fe !important; 
+}
+
+/* 曜日・祝日カラー */
+.fc-day-sun{ background: #fff1f1 !important; }
+.fc-day-sun .fc-daygrid-day-number,
+.fc-day-sun .fc-col-header-cell-cushion { color: #d22 !important; }
+
+.fc-day-sat{ background: #eef6ff !important; }
+.fc-day-sat .fc-col-header-cell-cushion { color: #1a73e8 !important; }
+
+.fc-day-holiday{ background: #fff1f1 !important; }
+.fc-day-holiday .fc-daygrid-day-number { color: #d22 !important; }
+
+/* イベントの基本外観 */
+.fc-event{
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 2px 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  cursor: pointer;
+}
+
+/* 作業カテゴリ別色分け */
+.cat-work { background: #cfe3ff !important; border-left: 4px solid #1a73e8 !important; }
+.cat-meeting { background: #ffe3b3 !important; border-left: 4px solid #f29900 !important; }
+.cat-routine { background: #e2f0d9 !important; border-left: 4px solid #34a853 !important; }
+.cat-rest { background: #ffdfe6 !important; border-left: 4px solid #ea4335 !important; }
+.cat-private { background: #f3e5f5 !important; border-left: 4px solid #ab47bc !important; }
+.cat-other { background: #f1f3f4 !important; border-left: 4px solid #5f6368 !important; }
+
+/* 文字の端をキチッと美しく揃えるための専用固定幅スタイル */
+.ev-time-fixed-month {
+  display: inline-block;
+  width: 36px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ev-time-fixed-3day {
+  display: inline-block;
+  width: 74px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  margin-right: 4px;
+}
+
+.ev-time{
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ev-icon {
+  display: inline-block;
+  width: 1.3em;
+  text-align: center;
+  margin-right: 2px;
+  vertical-align: middle;
+}
+
+.ev-line{
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 700;
+}
+
+/* クイックフォーム */
+.quick-form{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 16px;
+  background: #fff;
+  margin: 12px;
+  border-radius: 14px;
+  border: 1px solid #e0e0e0;
+}
+
+/* 常設入力欄・モーダル共通の配置補助用スタイル */
+.datetime-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label, .form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 2px;
+}
+
+.input-with-btn {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+
+.btn-next {
+  padding: 0 12px;
+  font-size: 13px;
+  background: #1a73e8;
+  color: #fff !important;
+  border: none;
+  border-radius: 10px;
+  white-space: nowrap;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-next:active {
+  transform: scale(0.95);
+}
+
+/* 相手・メモ欄の横並びレイアウト（常設用） */
+.memo-flex-container {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+.memo-flex-left {
+  flex: 1; /* 相手欄 */
+}
+.memo-flex-right {
+  flex: 2; /* メモ欄 */
+}
+
+.quick-form textarea{
+  height: 42px;
+  resize: none;
+}
+
+.quick-actions{
+  grid-column: 1/-1;
+  display: flex;
+  gap: 8px;
+}
+
+select, input, textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: #000;
+}
+
+select {
+  font-weight: bold;
+}
+
+/* Excelプレビューエリアのスタイル */
+.preview-container {
+  margin: 12px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.preview-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preview-table-wrapper {
+  overflow-x: auto;
+  max-height: 300px;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.preview-table th {
+  background: #f1f3f4;
+  font-weight: bold;
+  padding: 10px;
+  border-bottom: 2px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.preview-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+}
+
+.preview-table tr:hover {
+  background: #f8f9fa;
+}
+
+/* モーダル */
+#modal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+#modal.active{
+  display: flex;
+}
+
+.modal-box{
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 20px;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+}
+
+.form-group{
+  margin-bottom: 12px;
+}
+
+/* モーダル内 相手・メモの横並び用スタイル */
+.modal-memo-split {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.modal-actions button{
+  flex: 1;
+}
+
+/* 横画面やPC向けのレイアウト調整 */
+@media(min-width: 768px) {
+  .header-container { flex-direction: row; justify-content: space-between; align-items: center; }
+  .quick-form { grid-template-columns: repeat(4, 1fr); }
+  .quick-actions { grid-column: 1/-1; }
+  #modal { align-items: center; }
+  .modal-box { border-radius: 16px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-container">
+    <div class="app-title">関口式ワークスケジューラー ver.3.9</div>
+    <div class="toolbar">
+      <button id="monthBtn" class="active">Month</button>
+      <button id="weekBtn">Week</button>
+      <button id="dayBtn">3 Days</button>
+      <button id="excelBtn" class="primary">Excel / プレビュー</button>
+    </div>
+  </div>
+</header>
+
+<div id="calendar"></div>
+
+<div class="quick-form">
+  <div class="datetime-container">
+    <span class="field-label">開始日時</span>
+    <div class="input-with-btn">
+      <input type="datetime-local" id="quickStart">
+      <button type="button" id="quickStartNext" class="btn-next">次へ</button>
+    </div>
+  </div>
+  <div class="datetime-container">
+    <span class="field-label">終了日時</span>
+    <div class="input-with-btn">
+      <input type="datetime-local" id="quickEnd">
+      <button type="button" id="quickEndNext" class="btn-next">次へ</button>
+    </div>
+  </div>
+  <div>
+    <span class="field-label">カテゴリ</span>
+    <select id="quickCategory">
+      <option value="work">💼 仕事・訪問</option>
+      <option value="meeting">🤝 打合せ・連絡</option>
+      <option value="routine">🖥️ 内務・作業</option>
+      <option value="rest">☕ 休み・中抜け</option>
+      <option value="private">🏠 プライベート</option>
+      <option value="other">⚙️ その他</option>
+    </select>
+  </div>
+  <div>
+    <span class="field-label">タスク名 / 件名</span>
+    <input type="text" id="quickTitle" placeholder="（未入力でも登録可）">
+  </div>
+  
+  <div class="memo-flex-container">
+    <div class="memo-flex-left">
+      <span class="field-label">相手</span>
+      <input type="text" id="quickPartner" placeholder="取引先・担当者など">
+    </div>
+    <div class="memo-flex-right">
+      <span class="field-label">詳細メモ</span>
+      <textarea id="quickContent" placeholder="作業のメモ・詳細内容"></textarea>
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <button id="quickSaveBtn" class="primary" style="width: 100%;">クイック追加</button>
+  </div>
+</div>
+
+<div class="preview-container" id="previewArea" style="display: none;">
+  <div class="preview-header">
+    <div class="preview-title">📋 スケジュールデータ一覧（プレビュー）</div>
+    <button id="closePreviewBtn" style="padding: 6px 12px; font-size: 12px; background: #f1f3f4;">閉じる</button>
+  </div>
+  <div class="preview-table-wrapper">
+    <table class="preview-table">
+      <thead>
+        <tr>
+          <th>開始日時</th>
+          <th>終了日時</th>
+          <th>カテゴリ</th>
+          <th>相手</th>
+          <th>件名 / タスク名</th>
+          <th>詳細メモ</th>
+        </tr>
+      </thead>
+      <tbody id="previewTableBody">
+        </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="modal">
+  <div class="modal-box">
+    <div class="form-group">
+      <label>作業カテゴリ</label>
+      <select id="categoryInput">
+        <option value="work">💼 仕事・訪問</option>
+        <option value="meeting">🤝 打合せ・連絡</option>
+        <option value="routine">🖥️ 内務・作業</option>
+        <option value="rest">☕ 休み・中抜け</option>
+        <option value="private">🏠 プライベート</option>
+        <option value="other">⚙️ その他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>タスク名 / 件名</label>
+      <input type="text" id="titleInput" placeholder="（未入力でも登録可）">
+    </div>
+    <div class="form-group">
+      <label>開始日時</label>
+      <div class="input-with-btn">
+        <input type="datetime-local" id="startInput">
+        <button type="button" id="startNext" class="btn-next">次へ</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>終了日時</label>
+      <div class="input-with-btn">
+        <input type="datetime-local" id="endInput">
+        <button type="button" id="endNext" class="btn-next">次へ</button>
+      </div>
+    </div>
+    
+    <div class="form-group modal-memo-split">
+      <div style="flex: 1;">
+        <label>相手</label>
+        <input type="text" id="partnerInput" placeholder="取引先など">
+      </div>
+      <div style="flex: 2;">
+        <label>詳細メモ</label>
+        <textarea id="contentInput" rows="3" placeholder="メモなど"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="saveBtn" class="primary">保存</button>
+      <button id="deleteBtn">削除</button>
+      <button id="closeBtn">戻る</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'ikemen_scheduler_v34'; 
+
+// 2026年 祝日データ
+const HOLIDAYS = {
+  "2026-01-01":"元日","2026-01-12":"成人の日","2026-02-11":"建国記念の日",
+  "2026-02-23":"天皇誕生日","2026-03-20":"春分の日","2026-04-29":"昭和の日",
+  "2026-05-03":"憲法記念日","2026-05-04":"みどりの日","2026-05-05":"こどもの日"
+};
+
+// カテゴリ日本語変換用
+const CAT_NAMES = {
+  work: "💼 仕事・訪問",
+  meeting: "🤝 打合せ・連絡",
+  routine: "🖥️ 内務・作業",
+  rest: "☕ 休み・中抜け",
+  private: "🏠 プライベート",
+  other: "⚙️ その他"
+};
+
+const quickStart = document.getElementById('quickStart');
+const quickEnd = document.getElementById('quickEnd');
+const quickCategory = document.getElementById('quickCategory');
+const quickTitle = document.getElementById('quickTitle');
+const quickPartner = document.getElementById('quickPartner');
+const quickContent = document.getElementById('quickContent');
+
+const startInput = document.getElementById('startInput');
+const endInput = document.getElementById('endInput');
+const categoryInput = document.getElementById('categoryInput');
+const titleInput = document.getElementById('titleInput');
+const partnerInput = document.getElementById('partnerInput');
+const contentInput = document.getElementById('contentInput');
+const modal = document.getElementById('modal');
+
+let currentEditId = null;
+let selectedDateStr = null; 
+let lastTapInfo = { dateStr: null, timestamp: 0 }; 
+let lastViewType = null; 
+
+function generateUniqueId() {
+  return 'ev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+function loadEvents(){
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem('ikemen_scheduler_v32') || '[]');
+}
+
+function saveEvents(data){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function nowLocalDatetime(){
+  const n = new Date();
+  const pad = v => String(v).padStart(2,'0');
+  return `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}T${pad(n.getHours())}:${pad(n.getMinutes())}`;
+}
+
+quickStart.value = nowLocalDatetime();
+
+function toLocal(d){
+  const pad = v => String(v).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function getLocalDateString(dateObj) {
+  const pad = v => String(v).padStart(2,'0');
+  return `${dateObj.getFullYear()}-${pad(dateObj.getMonth()+1)}-${pad(dateObj.getDate())}`;
+}
+
+function refreshSelectionHighlight() {
+  document.querySelectorAll('.custom-selected-day').forEach(el => {
+    el.classList.remove('custom-selected-day');
+  });
+  if (selectedDateStr) {
+    const targetEl = document.querySelector(`[data-date="${selectedDateStr}"]`);
+    if (targetEl) {
+      targetEl.classList.add('custom-selected-day');
+    }
+  }
+}
+
+function adjustViewCenter() {
+  if (!calendar || !calendar.view) return;
+  if (calendar.view.type === lastViewType) return; 
+  lastViewType = calendar.view.type;
+
+  let targetDate = new Date(); 
+  if (selectedDateStr) {
+    targetDate = new Date(selectedDateStr + 'T00:00:00'); 
+  }
+
+  if (calendar.view.type === 'timeGridThreeDay') {
+    const centerStart = new Date(targetDate);
+    centerStart.setDate(centerStart.getDate() - 1);
+    calendar.gotoDate(centerStart);
+  } else if (calendar.view.type === 'timeGridWeek') {
+    const centerStart = new Date(targetDate);
+    centerStart.setDate(centerStart.getDate() - 3);
+    calendar.gotoDate(centerStart);
+  }
+}
+
+function setupDateTimeSequence(startIn, endIn, nextBtnStart, nextBtnEnd) {
+  startIn.addEventListener('input', () => {
+    if (startIn.value) {
+      endIn.value = startIn.value;
+    }
+  });
+
+  const proceedToEnd = () => {
+    if (startIn.value) {
+      endIn.focus();
+    }
+  };
+  nextBtnStart.addEventListener('click', (e) => { e.preventDefault(); proceedToEnd(); });
+  startIn.addEventListener('change', proceedToEnd);
+  startIn.addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); proceedToEnd(); } });
+
+  const closePicker = () => {
+    endIn.blur();
+  };
+  nextBtnEnd.addEventListener('click', (e) => { e.preventDefault(); closePicker(); });
+  endIn.addEventListener('change', closePicker);
+  endIn.addEventListener('keydown', (e) => { if(e.key === 'Enter') { e.preventDefault(); closePicker(); } });
+}
+
+// FullCalendar初期化
+const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+  locale: 'ja',
+  initialView: window.innerWidth < 768 ? 'timeGridThreeDay' : 'dayGridMonth',
+  selectable: false, 
+  editable: true,
+  height: 'auto',
+  slotMinTime: '06:00:00',
+  slotMaxTime: '30:00:00',
+  scrollTime: '08:00:00',
+  allDaySlot: false,
+  events: loadEvents(),
+  headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+
+  views: {
+    timeGridWeek: {
+      type: 'timeGrid',
+      duration: { days: 7 },
+      dateIncrement: { days: 1 },
+      buttonText: '週'
+    },
+    timeGridThreeDay: {
+      type: 'timeGrid',
+      duration: { days: 3 },
+      dateIncrement: { days: 1 },
+      buttonText: '3日'
+    }
+  },
+
+  dayCellDidMount(info){
+    const d = getLocalDateString(info.date);
+    
+    if(HOLIDAYS[d]){
+      info.el.classList.add('fc-day-holiday');
+      const label = document.createElement('div');
+      label.innerText = HOLIDAYS[d];
+      label.style.fontSize = '10px';
+      label.style.color = '#d22'; 
+      label.style.fontWeight = '700';
+      info.el.querySelector('.fc-daygrid-day-top')?.appendChild(label);
+    }
+
+    if (selectedDateStr && d === selectedDateStr) {
+      info.el.classList.add('custom-selected-day');
+    }
+
+    let longTapTimeout = null;
+    const handlePressStart = () => {
+      longTapTimeout = setTimeout(() => {
+        openModalForDate(info.date);
+      }, 500);
+    };
+    const handlePressEnd = () => {
+      if (longTapTimeout) clearTimeout(longTapTimeout);
+    };
+
+    info.el.addEventListener('mousedown', handlePressStart);
+    info.el.addEventListener('mouseup', handlePressEnd);
+    info.el.addEventListener('touchstart', handlePressStart, {passive: true});
+    info.el.addEventListener('touchend', handlePressEnd, {passive: true});
+
+    info.el.addEventListener('click', (e) => {
+      if (e.target.closest('.fc-event')) return; 
+
+      const now = Date.now();
+      const clickDStr = getLocalDateString(info.date);
+
+      if (lastTapInfo.dateStr === clickDStr && (now - lastTapInfo.timestamp) < 300) {
+        if (longTapTimeout) clearTimeout(longTapTimeout);
+        openModalForDate(info.date);
+        lastTapInfo = { dateStr: null, timestamp: 0 };
+        return;
+      }
+
+      lastTapInfo = { dateStr: clickDStr, timestamp: now };
+      selectedDateStr = clickDStr;
+      refreshSelectionHighlight();
+
+      const targetTime = new Date(info.date);
+      const nowTime = new Date();
+      targetTime.setHours(nowTime.getHours(), nowTime.getMinutes());
+      quickStart.value = toLocal(targetTime);
+      quickEnd.value = toLocal(targetTime);
+    });
+  },
+
+  eventClick(info){
+    const ev = info.event;
+    currentEditId = ev.id;
+
+    startInput.value = toLocal(ev.start);
+    endInput.value = toLocal(ev.end || ev.start);
+    titleInput.value = (ev.title === '（件名なし）') ? '' : ev.title;
+    contentInput.value = ev.extendedProps.content || '';
+    partnerInput.value = ev.extendedProps.partner || '';
+    categoryInput.value = ev.extendedProps.category || 'work';
+
+    selectedDateStr = getLocalDateString(ev.start); 
+    refreshSelectionHighlight();
+
+    modal.classList.add('active');
+  },
+
+  eventClassNames(arg) {
+    const cat = arg.event.extendedProps.category || 'work';
+    return [`cat-${cat}`];
+  },
+
+  eventContent(arg){
+    const ev = arg.event;
+    const start = ev.start ? ev.start.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '';
+    const end = ev.end ? ev.end.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) : '';
+    const cat = ev.extendedProps.category || 'work';
+
+    const partnerStr = ev.extendedProps.partner ? ev.extendedProps.partner.trim() : '';
+    let titleStr = (ev.title === '（件名なし）' || !ev.title) ? '予定' : ev.title.trim();
+
+    if (cat === 'rest' && titleStr === '予定') {
+      titleStr = '休み・中抜け';
+    }
+
+    let displayHtml = '';
+    if (partnerStr) {
+      displayHtml += `<span class="ev-icon">👤</span>${partnerStr} <span class="ev-icon">📋</span>${titleStr}`;
+    } else {
+      if (cat === 'rest') {
+        displayHtml += `<span class="ev-icon">☕</span>${titleStr}`;
+      } else {
+        displayHtml += `<span class="ev-icon">📋</span>${titleStr}`;
+      }
+    }
+
+    if(arg.view.type === 'dayGridMonth'){
+      return {
+        html: `<div class="ev-line" style="font-size:11px;"><span class="ev-time-fixed-month">${start}</span>${displayHtml}</div>`
+      };
+    }
+
+    if(arg.view.type === 'timeGridThreeDay'){
+      return {
+        html: `
+          <div class="ev-line" style="font-size:11px; font-weight:800;"><span class="ev-time-fixed-3day">${start}-${end}</span>${displayHtml}</div>
+          <div class="ev-line" style="font-size:11px; font-weight:normal; opacity:0.8; margin-top:2px;">${ev.extendedProps.content || ''}</div>
+        `
+      };
+    }
+
+    return {
+      html: `
+        <div class="ev-time" style="font-size:11px; font-weight:800;">${start} - ${end}</div>
+        <div class="ev-line" style="font-weight:800; margin-top:2px;">${displayHtml}</div>
+      `
+    };
+  },
+
+  datesSet() {
+    refreshSelectionHighlight();
+    adjustViewCenter();
+    // 画面切り替え時や予定更新時、プレビューが開いていれば内容を同期
+    if (document.getElementById('previewArea').style.display === 'block') {
+      updatePreviewTable();
+    }
+  }
+});
+
+calendar.render();
+
+setupDateTimeSequence(quickStart, quickEnd, document.getElementById('quickStartNext'), document.getElementById('quickEndNext'));
+setupDateTimeSequence(startInput, endInput, document.getElementById('startNext'), document.getElementById('endNext'));
+
+function openModalForDate(date) {
+  currentEditId = null;
+  const targetTime = new Date(date);
+  const nowTime = new Date();
+  targetTime.setHours(nowTime.getHours(), nowTime.getMinutes());
+
+  startInput.value = toLocal(targetTime);
+  endInput.value = toLocal(targetTime);
+
+  titleInput.value = '';
+  partnerInput.value = '';
+  contentInput.value = '';
+  categoryInput.value = 'work';
+
+  modal.classList.add('active');
+}
+
+function syncLocalStorage(){
+  const data = calendar.getEvents().map(e=>({
+    id: e.id,
+    title: e.title,
+    start: e.start,
+    end: e.end,
+    extendedProps: e.extendedProps
+  }));
+  saveEvents(data);
+  if (document.getElementById('previewArea').style.display === 'block') {
+    updatePreviewTable();
+  }
+}
+
+/* クイックフォームから追加 */
+document.getElementById('quickSaveBtn').onclick = ()=>{
+  const start = quickStart.value;
+  let end = quickEnd.value || start;
+
+  if(!start) { alert('開始日時を選択してください'); return; }
+  if(start === end) {
+    let d = new Date(start); d.setHours(d.getHours() + 1); end = toLocal(d);
+  }
+
+  const finalTitle = quickTitle.value.trim() || '（件名なし）';
+
+  calendar.addEvent({
+    id: generateUniqueId(),
+    title: finalTitle,
+    start: start,
+    end: end,
+    extendedProps: {
+      category: quickCategory.value,
+      partner: quickPartner.value.trim(),
+      content: quickContent.value
+    }
+  });
+
+  syncLocalStorage();
+  
+  quickTitle.value = '';
+  quickPartner.value = '';
+  quickContent.value = '';
+  quickStart.value = nowLocalDatetime();
+  quickEnd.value = '';
+};
+
+/* モーダル内保存ボタン */
+document.getElementById('saveBtn').onclick = ()=>{
+  let start = startInput.value;
+  let end = endInput.value || start;
+
+  if(!start) { alert('開始日時を選択してください'); return; }
+  
+  const finalTitle = titleInput.value.trim() || '（件名なし）';
+
+  if(currentEditId){
+    const oldEv = calendar.getEventById(currentEditId);
+    if(oldEv) oldEv.remove();
+    
+    calendar.addEvent({
+      id: currentEditId,
+      title: finalTitle,
+      start: start,
+      end: end,
+      extendedProps: {
+        content: contentInput.value,
+        partner: partnerInput.value.trim(),
+        category: categoryInput.value
+      }
+    });
+  } else {
+    calendar.addEvent({
+      id: generateUniqueId(),
+      title: finalTitle,
+      start: start,
+      end: end,
+      extendedProps: {
+        content: contentInput.value,
+        partner: partnerInput.value.trim(),
+        category: categoryInput.value
+      }
+    });
+  }
+
+  syncLocalStorage();
+  modal.classList.remove('active');
+};
+
+/* 削除 */
+document.getElementById('deleteBtn').onclick = ()=>{
+  if(currentEditId){
+    if(confirm('削除しますか？')) {
+      const ev = calendar.getEventById(currentEditId);
+      if(ev) ev.remove();
+      syncLocalStorage();
+      modal.classList.remove('active');
+    }
+  } else {
+    modal.classList.remove('active');
+  }
+};
+
+/* ビュー切り替えトリガー */
+document.getElementById('monthBtn').onclick=()=>{ lastViewType = null; setActiveBtn('monthBtn'); calendar.changeView('dayGridMonth'); };
+document.getElementById('weekBtn').onclick=()=>{ lastViewType = null; setActiveBtn('weekBtn'); calendar.changeView('timeGridWeek'); };
+document.getElementById('dayBtn').onclick=()=>{ lastViewType = null; setActiveBtn('dayBtn'); calendar.changeView('timeGridThreeDay'); };
+
+function setActiveBtn(id) {
+  ['monthBtn', 'weekBtn', 'dayBtn'].forEach(btnId => { document.getElementById(btnId).classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+
+/* プレビューテーブルの更新処理 */
+function updatePreviewTable() {
+  const tbody = document.getElementById('previewTableBody');
+  tbody.innerHTML = '';
+
+  // 開始日時の早い順にソートして並べる
+  const sortedEvents = calendar.getEvents().sort((a, b) => {
+    return (a.start?.getTime() || 0) - (b.start?.getTime() || 0);
+  });
+
+  if (sortedEvents.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888; padding:20px;">登録されている予定がありません。</td></tr>`;
+    return;
+  }
+
+  sortedEvents.forEach(e => {
+    const tr = document.createElement('tr');
+    
+    const startStr = e.start ? toLocal(e.start).replace('T', ' ') : '';
+    const endStr = e.end ? toLocal(e.end).replace('T', ' ') : '';
+    const catCode = e.extendedProps.category || 'work';
+    const catStr = CAT_NAMES[catCode] || catCode;
+    const partnerStr = e.extendedProps.partner || '—';
+    const titleStr = e.title || '—';
+    const contentStr = e.extendedProps.content || '—';
+
+    tr.innerHTML = `
+      <td style="font-weight:bold;">${startStr}</td>
+      <td>${endStr}</td>
+      <td>${catStr}</td>
+      <td>👤 ${partnerStr}</td>
+      <td style="font-weight:600;">📋 ${titleStr}</td>
+      <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis;" title="${contentStr}">${contentStr}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* Excel出力 ＆ プレビュー展開 */
+document.getElementById('excelBtn').onclick=()=>{
+  // 1. プレビュー表示エリアを更新して出現させる
+  updatePreviewTable();
+  document.getElementById('previewArea').style.display = 'block';
+  document.getElementById('previewArea').scrollIntoView({ behavior: 'smooth' });
+
+  // 2. Excelファイルの生成・ダウンロードもバックグラウンドで実行
+  const header = [["開始日時", "終了日時", "カテゴリ", "相手", "タスク名", "詳細メモ"]];
+  const rows = calendar.getEvents().map(e => [
+    e.start ? toLocal(e.start).replace('T', ' ') : '',
+    e.end ? toLocal(e.end).replace('T', ' ') : '',
+    CAT_NAMES[e.extendedProps.category || 'work'] || '',
+    e.extendedProps.partner || '',
+    e.title,
+    e.extendedProps.content || ''
+  ]);
+  
+  const ws = XLSX.utils.aoa_to_sheet(header.concat(rows));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'WorkSchedule');
+  XLSX.writeFile(wb, 'work_schedule.xlsx');
+};
+
+/* プレビューを閉じるボタン */
+document.getElementById('closePreviewBtn').onclick = () => {
+  document.getElementById('previewArea').style.display = 'none';
+};
+
+document.getElementById('closeBtn').onclick = ()=> modal.classList.remove('active');
+</script>
+
+</body>
+</html>
